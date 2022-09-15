@@ -22,17 +22,22 @@ io.on( "connection", function( socket ){
         io.emit("notice", `${id}님이 입장하였습니다!`);
         // socket.emit( "response", data + " : " + msg[data] );
 
-        socket.on("disconnect", function(id){
-            console.log("disconnectedId : ", id)
-            // io.emit("goodBye", `${id}님이 퇴장하였습니다.`);
-        }) 
     });
-    
-    socket.on("send", function(content){
+
+    socket.on("send", function(data){
         // data로 해도 된다.
-        // console.log("content : ", data)
-        io.emit("sendMsg", content)
+        console.log("content : ", data)
+        // var id = 
+        io.emit("sendMsg", data)
     });
+
+
+
+    // socket.on("send", function(content){
+    //     // data로 해도 된다.
+    //     // console.log("content : ", data)
+    //     io.emit("sendMsg", content)
+    // });
     
     // socket.on("welcome", (msg)=>{
     //     console.log("client : ", msg);

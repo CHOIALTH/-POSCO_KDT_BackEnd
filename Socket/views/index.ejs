@@ -11,15 +11,28 @@
       crossorigin="anonymous"></script> 
     <!-- 이상 socket cdn -->
     <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
-    <!-- 이상 jquery cdns -->
+    <!-- 이상 jquery cdn -->
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- 이상 SweetAlert2 cdn -->
+
     <style>
         /* div{
             text-align: center;
         } */
+        .header{
+            width: 400px;
+            height: 40px;
+            background-color: #3A1D1D;
+            color:#F7E600;
+            text-align: center;
+            font-size: 30px;
+        }       
         .chatMain{
-            background-color: darkturquoise;
-            width: 300px;
+            background-color: skyblue;
+            width: 400px;
             height: 500px;
+            overflow-y: scroll;
         }
         .chatMain >
 
@@ -47,8 +60,12 @@
         }
 
 
-        .sendMsgBox{
-            width: 300px;
+        .sendMsgBox, .loginId{
+            /* border: 1px grey solid; */
+            width: 358px !important; 
+            height: 26.9px !important;
+            text-align: center;
+            padding: 0;
         }
         #newLogin{
             text-align: center;
@@ -59,20 +76,26 @@
         span{
             align-content: center;
         }
+        .sendBtn, .loginBtn{
+            /* background-color: #3A1D1D; */
+            background-color: #F7E600;
+            border: 1px grey solid;
+            width: 42px;
+            height: 28.87px !important;
+        }
     </style>
+    <script>
+
+    </script>
 </head>
 <body>
-    <input placeholder="사용자명을 입력해주세요" class="loginId"><button type="button" onclick="login();">접속</button>
+    <div class="header">Talk&Talk</div>
+    <input placeholder="닉네임을 입력해주세요" class="loginId"><button type="button" onclick="login();" class="loginBtn">접속</button>
     <div class="chatMain">
         <div id="newLogin"></div>
-        <!-- <div id="goodBye"></div> -->
-        
-        <!-- <div class="sendMsg">안녕</div><br>
-        <div class="resMsg">응 그래 안녕</div> -->
     </div>
     <div>
-        <input placeholder="전송하고 싶은 내용을 적어주세요" class="sendMsgBox">
-        <button type="button" onclick="send();">전송</button>
+        <input placeholder="전송하고 싶은 내용을 적어주세요" class="sendMsgBox"><button type="button" onclick="send();" class="sendBtn">전송</button>
     </div>
     
 
@@ -84,12 +107,31 @@
     <div></div> -->
 
     <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'center-left',
+            showConfirmButton: false,
+            timer: 1000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
         var socket = io.connect(); //socket 연결 선언
-       
+
         function login(){
             var id = $(".loginId").val();
             console.log(id);
-            socket.emit("login", id);
+            
+            if($(".loginId").val() == 0){
+                Toast.fire(
+                    {icon: "warning",
+                        title: "닉네임을 입력해주세요",
+                        
+                    })
+            }
+            else socket.emit("login", id);
         }
         socket.on("notice", function(data){
                 var tag = document.getElementById("newLogin");
@@ -104,41 +146,41 @@
 
         function send(){
             var content = $(".sendMsgBox").val(); 
+            var id = $(".loginId").val();
+            var data = {
+                id : id,
+                content : content
+            }
             //input과 select 태그에서만 value 선택 가능
             // console.log(content);
-            socket.emit("send", content);
+
+            if($(".sendMsgBox").val() == 0){
+                Toast.fire(
+                    {
+                        icon: "warning",
+                        title: "내용을 입력해주세요 ㅜㅜ"
+                        
+                    })
+            }
+            else socket.emit("send", data);
 
         }
-        socket.on("sendMsg", (content)=>{
-            var myContent = $(".sendMsgBox").val(); 
-            var className = "";
-            if(myContent == content) className = "sendMsg";
-            else className = "resMsg";
 
-             //클라이언트는 무조건 socket으로 치면 됨
-            $(".chatMain").append(
-                `<div class="${className}">
-                    <div>${content}</div>
-                </div>`
+        socket.on("sendMsg", (data)=>{
+        //클라이언트는 무조건 socket으로 치면 됨
+                var myContent = $(".sendMsgBox").val(); 
+                var className = "";
+
+                if(myContent == data.content) className = "sendMsg";
+                else className = "resMsg";
+
+                $(".chatMain").append(
+                    `<div class="${className}">
+                        <div>${data.id} : ${data.content}</div>
+                    </div>`
             )
 
         })
-        // socket.on("goodBye", function(data){
-        //         var tag = document.getElementById("goodBye");
-        //         // var tag = $(".newLogin");
-        //         if(tag.textContent.length == 0){
-        //             tag.textContent = data;
-        //         }
-        //         else{
-        //             $(".chatMain").append(`<div class="byeB">${data}</div>`)
-        //         }
-        //     });
-
-
-
-        // socket.on("response", function(data){
-        //     tag.textContent = data;
-        // })
 
 
         // function hello(){
