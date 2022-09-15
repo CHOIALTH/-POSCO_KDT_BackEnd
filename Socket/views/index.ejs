@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script
+      src="https://cdn.socket.io/4.5.0/socket.io.min.js"
+      integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
+      crossorigin="anonymous"></script> 
+    <!-- 이상 socket cdn -->
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <!-- 이상 jquery cdns -->
+    <style>
+        /* div{
+            text-align: center;
+        } */
+        .chatMain{
+            background-color: darkturquoise;
+            width: 300px;
+            height: 500px;
+        }
+        .chatMain >
+
+        .sendMsg {
+            text-align: right;
+            
+        }
+        .sendMsg > div {
+            background-color: yellow;
+            display: inline-block;
+            margin-right: 10px;
+            margin-top: 15px;
+        }
+
+        .resMsg{
+            text-align: left;
+
+        }
+        .resMsg > div {
+            background-color: white;
+            /* float: right; */
+            display: inline-block;
+            margin-left: 10px;
+            margin-top : 10px;
+        }
+
+
+        .sendMsgBox{
+            width: 300px;
+        }
+        #newLogin{
+            text-align: center;
+        }
+        .newLogin{
+            text-align: center;
+        }
+        span{
+            align-content: center;
+        }
+    </style>
+</head>
+<body>
+    <input placeholder="사용자명을 입력해주세요" class="loginId"><button type="button" onclick="login();">접속</button>
+    <div class="chatMain">
+        <div id="newLogin"></div>
+        <!-- <div id="goodBye"></div> -->
+        
+        <!-- <div class="sendMsg">안녕</div><br>
+        <div class="resMsg">응 그래 안녕</div> -->
+    </div>
+    <div>
+        <input placeholder="전송하고 싶은 내용을 적어주세요" class="sendMsgBox">
+        <button type="button" onclick="send();">전송</button>
+    </div>
+    
+
+
+    <!-- <h1><b>Hello World!</b></h1>
+    <button type="button" onclick="hello()">hello</button>
+    <button type="button" onclick="study()">study</button>
+    <button type="button" onclick="bye()">bye</button>
+    <div></div> -->
+
+    <script>
+        var socket = io.connect(); //socket 연결 선언
+       
+        function login(){
+            var id = $(".loginId").val();
+            console.log(id);
+            socket.emit("login", id);
+        }
+        socket.on("notice", function(data){
+                var tag = document.getElementById("newLogin");
+                // var tag = $(".newLogin");
+                if(tag.textContent.length == 0){
+                    tag.textContent = data;
+                }
+                else{
+                    $(".chatMain").append(`<div class="newLogin">${data}</div>`)
+                }
+            });
+
+        function send(){
+            var content = $(".sendMsgBox").val(); 
+            //input과 select 태그에서만 value 선택 가능
+            // console.log(content);
+            socket.emit("send", content);
+
+        }
+        socket.on("sendMsg", (content)=>{
+            var myContent = $(".sendMsgBox").val(); 
+            var className = "";
+            if(myContent == content) className = "sendMsg";
+            else className = "resMsg";
+
+             //클라이언트는 무조건 socket으로 치면 됨
+            $(".chatMain").append(
+                `<div class="${className}">
+                    <div>${content}</div>
+                </div>`
+            )
+
+        })
+        // socket.on("goodBye", function(data){
+        //         var tag = document.getElementById("goodBye");
+        //         // var tag = $(".newLogin");
+        //         if(tag.textContent.length == 0){
+        //             tag.textContent = data;
+        //         }
+        //         else{
+        //             $(".chatMain").append(`<div class="byeB">${data}</div>`)
+        //         }
+        //     });
+
+
+
+        // socket.on("response", function(data){
+        //     tag.textContent = data;
+        // })
+
+
+        // function hello(){
+        //     // socket.emit("welcome", (data)=>{
+        //     // console.log(data);
+        //     // console.log(data.name, data.msg);
+        //     // })
+        //     socket.emit("welcome", "hello")
+        //     // console.log(data);
+        //     // console.log(data.msg)
+        //     // var msgg = data.msg;
+        //     $("div").html(msg);
+            
+        // }
+        // function study(){
+        //     // socket.emit("welcome", (data)=>{
+        //     // console.log(data);
+        //     // console.log(data.name, data.msg);
+        //     // })
+        //     socket.emit("welcome", "study")
+        //     $("div").html("study: 공부합시다!");
+            
+        // }
+        // function bye(){
+        //     // socket.emit("welcome", (data)=>{
+        //     // console.log(data);
+        //     // console.log(data.name, data.msg);
+        //     // })
+        //     socket.emit("welcome", "bye")
+        //     $("div").html("bye: 안녕히가세여");
+            
+        // }
+
+
+        // socket.emit("welcome", "client 반가워~"); 
+        //index.js 렌더시 실행될 함수
+
+        // socket.on("welcome from server", (data)=>{
+        //     console.log(data);
+
+        //     console.log(data.name, data.msg);
+        // })
+        // socket.emit("이벤트명", "전송하고자하는데이터(문자열이든 객체든 무관)")
+    </script>
+</body>
+</html>
